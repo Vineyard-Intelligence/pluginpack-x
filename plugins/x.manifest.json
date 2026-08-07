@@ -2,8 +2,8 @@
   "identifier": "run.vineyard.pluginpacks.x",
   "content_type": "vineyard:pluginpack",
   "name": "X (Twitter)",
-  "version": "0.1.0",
-  "description": "Anonymous X (Twitter) profile and timeline collection via the guest-token path used by the Fritter/Squawker client family — no API key, no login. Desktop only: X sends no CORS headers, so the desktop shell must allowlist api.twitter.com and twitter.com.",
+  "version": "0.2.0",
+  "description": "Anonymous X (Twitter) collection over the guest-token path used by the Fritter/Squawker client family — no API key, no login. Two plugins: X Profile (identify an account, two requests, one node) and X Posts (collect its timeline). Desktop only: X sends no CORS headers, so the desktop shell must allowlist api.twitter.com and twitter.com.",
   "author": {
     "name": "vineyard-run",
     "url": "https://github.com/vineyard-run"
@@ -24,11 +24,11 @@
   },
   "plugins": [
     {
-      "identifier": "run.vineyard.plugins.x",
+      "identifier": "run.vineyard.plugins.x_profile",
       "content_type": "vineyard:plugin",
-      "name": "X (Twitter)",
-      "version": "0.1.0",
-      "description": "Fetches an X (Twitter) account profile and its recent posts through the anonymous guest-token path used by the Fritter/Squawker client family — no API key, no login. Adds a Social Account node, one Post per tweet, Hashtag and Media nodes, and the edges between them. Desktop only: X sends no CORS headers, so the desktop shell must allowlist api.twitter.com and twitter.com (Settings → advanced origins).",
+      "name": "X Profile",
+      "version": "0.2.0",
+      "description": "Fetches an X (Twitter) account's public profile — display name, bio, location, website, follower/following/post counts, verification, join date, avatar — through the anonymous guest-token path, and folds it into the Social Account node. Two requests, one node: use this to identify or verify an account before deciding whether its timeline is worth collecting. No API key, no login. Desktop only.",
       "icon": "bird",
       "platforms": {
         "primary": "desktop",
@@ -60,7 +60,75 @@
             "typepack": "run.vineyard.typepacks.social",
             "category": "social",
             "name": "account"
+          }
+        ]
+      },
+      "scopes": {
+        "graph": [
+          "node:read",
+          "node:create",
+          "edge:create"
+        ],
+        "network": [
+          {
+            "endpoint": "https://api.twitter.com",
+            "methods": [
+              "GET",
+              "POST"
+            ],
+            "purpose": "Guest-token activation and the profile timeline (Fritter-style internal API)."
           },
+          {
+            "endpoint": "https://twitter.com",
+            "methods": [
+              "GET"
+            ],
+            "purpose": "X internal GraphQL (UserByScreenName)."
+          }
+        ]
+      },
+      "lifecycle": {
+        "persistence": "opt-in",
+        "controls": [
+          "progress",
+          "cancel"
+        ],
+        "progress": "determinate"
+      }
+    },
+    {
+      "identifier": "run.vineyard.plugins.x_posts",
+      "content_type": "vineyard:plugin",
+      "name": "X Posts",
+      "version": "0.2.0",
+      "description": "Collects an X (Twitter) account's recent posts through the anonymous guest-token path: one Post node per tweet with its text, timestamp, engagement counts and permalink, plus Hashtag and Media nodes and 'posted by' / 'uses hashtag' / 'contains media' / 'reposted' / 'replies to' edges. Skips the profile lookup entirely when the selected node already carries a user_id. No API key, no login. Desktop only.",
+      "icon": "bird",
+      "platforms": {
+        "primary": "desktop",
+        "web": {
+          "runtime": "sandbox-js",
+          "entry": "dist/pack.mjs"
+        },
+        "desktop": {
+          "runtime": "sandbox-js",
+          "entry": "dist/pack.mjs",
+          "min_app_version": "0.1.0"
+        }
+      },
+      "io": {
+        "consumes": [
+          {
+            "typepack": "run.vineyard.typepacks.social",
+            "category": "social",
+            "name": "account"
+          },
+          {
+            "typepack": "run.vineyard.typepacks.identity",
+            "category": "identity",
+            "name": "user_account"
+          }
+        ],
+        "produces": [
           {
             "typepack": "run.vineyard.typepacks.social",
             "category": "social",
@@ -109,6 +177,19 @@
           "cancel"
         ],
         "progress": "determinate"
+      },
+      "params": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Posts",
+            "description": "How many recent posts to collect (1-100).",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20
+          }
+        }
       }
     }
   ]
