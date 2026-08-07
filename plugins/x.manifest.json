@@ -1,0 +1,115 @@
+{
+  "identifier": "run.vineyard.pluginpacks.x",
+  "content_type": "vineyard:pluginpack",
+  "name": "X (Twitter)",
+  "version": "0.1.0",
+  "description": "Anonymous X (Twitter) profile and timeline collection via the guest-token path used by the Fritter/Squawker client family — no API key, no login. Desktop only: X sends no CORS headers, so the desktop shell must allowlist api.twitter.com and twitter.com.",
+  "author": {
+    "name": "vineyard-run",
+    "url": "https://github.com/vineyard-run"
+  },
+  "license": "Apache-2.0",
+  "icon": "bird",
+  "platforms": {
+    "primary": "desktop",
+    "web": {
+      "runtime": "sandbox-js",
+      "entry": "dist/pack.mjs"
+    },
+    "desktop": {
+      "runtime": "sandbox-js",
+      "entry": "dist/pack.mjs",
+      "min_app_version": "0.1.0"
+    }
+  },
+  "plugins": [
+    {
+      "identifier": "run.vineyard.plugins.x",
+      "content_type": "vineyard:plugin",
+      "name": "X (Twitter)",
+      "version": "0.1.0",
+      "description": "Fetches an X (Twitter) account profile and its recent posts through the anonymous guest-token path used by the Fritter/Squawker client family — no API key, no login. Adds a Social Account node, one Post per tweet, Hashtag and Media nodes, and the edges between them. Desktop only: X sends no CORS headers, so the desktop shell must allowlist api.twitter.com and twitter.com (Settings → advanced origins).",
+      "icon": "bird",
+      "platforms": {
+        "primary": "desktop",
+        "web": {
+          "runtime": "sandbox-js",
+          "entry": "dist/pack.mjs"
+        },
+        "desktop": {
+          "runtime": "sandbox-js",
+          "entry": "dist/pack.mjs",
+          "min_app_version": "0.1.0"
+        }
+      },
+      "io": {
+        "consumes": [
+          {
+            "typepack": "run.vineyard.typepacks.social",
+            "category": "social",
+            "name": "account"
+          },
+          {
+            "typepack": "run.vineyard.typepacks.identity",
+            "category": "identity",
+            "name": "user_account"
+          }
+        ],
+        "produces": [
+          {
+            "typepack": "run.vineyard.typepacks.social",
+            "category": "social",
+            "name": "account"
+          },
+          {
+            "typepack": "run.vineyard.typepacks.social",
+            "category": "social",
+            "name": "post"
+          },
+          {
+            "typepack": "run.vineyard.typepacks.social",
+            "category": "social",
+            "name": "hashtag"
+          },
+          {
+            "typepack": "run.vineyard.typepacks.social",
+            "category": "social",
+            "name": "media"
+          }
+        ]
+      },
+      "scopes": {
+        "graph": [
+          "node:read",
+          "node:create",
+          "edge:create"
+        ],
+        "network": [
+          {
+            "endpoint": "https://api.twitter.com",
+            "methods": [
+              "GET",
+              "POST"
+            ],
+            "purpose": "Guest-token activation and the profile timeline (Fritter-style internal API)."
+          },
+          {
+            "endpoint": "https://twitter.com",
+            "methods": [
+              "GET"
+            ],
+            "purpose": "X internal GraphQL (UserByScreenName)."
+          }
+        ]
+      },
+      "lifecycle": {
+        "persistence": "opt-in",
+        "controls": [
+          "progress",
+          "cancel"
+        ],
+        "progress": "determinate"
+      }
+    }
+  ]
+}

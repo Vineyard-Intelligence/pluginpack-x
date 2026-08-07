@@ -1,0 +1,30 @@
+name: validate
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Validate pack manifest(s)
+        run: |
+          python - <<'PY'
+          import glob, json, sys
+          required = {"identifier", "content_type", "name", "version", "description", "platforms"}
+          bad = 0
+          for p in sorted(glob.glob("plugins/*.json")):
+              d = json.load(open(p))
+              missing = required - set(d)
+              has_members = isinstance(d.get("plugins"), list) and bool(d["plugins"])
+              has_single = "io" in d and "scopes" in d
+              if missing or not (has_members or has_single):
+                  bad += 1
+                  print(f"::error file={p}::missing {sorted(missing)}; needs plugins[] or io+scopes")
+          print("all manifests well-formed" if not bad else f"{bad} invalid")
+          sys.exit(1 if bad else 0)
+          PY
