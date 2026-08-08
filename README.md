@@ -6,13 +6,13 @@ A Vineyard **plugin pack** for anonymous X (Twitter) collection. Two plugins, bo
 | Plugin | Cost | Produces |
 | --- | --- | --- |
 | **X Profile** | 2 requests | the **Social Account** node, filled in: display name, bio, location, website, follower/following/post counts, verification, join date, avatar |
-| **X Posts** | 1–3 requests | one **Post** per tweet, plus **Hashtag** and **Media** nodes and the edges between them (`posted by`, `uses hashtag`, `contains media`, `reposted`, `replies to`) |
+| **X Posts** ⚠️ | 1–3 requests per page | one **Post** per tweet, plus **Hashtag** and **Media** nodes and the edges between them (`posted by`, `uses hashtag`, `contains media`, `reposted`, `replies to`). **Returns nothing for some accounts** — see below |
 
 They are separate on purpose. A profile is two requests and one node; a timeline is up to a
 hundred nodes and their edges — asking "does this account exist, and what does the bio say"
-should not stage sixty items to answer it. They also break independently: the profile goes
-through X's internal GraphQL, whose operation id X rotates without warning, while the timeline
-is a plain REST-ish endpoint.
+should not stage sixty items to answer it. They also fail independently, and X Posts fails far more
+often: both go through X's internal GraphQL, but the timeline additionally comes back empty for
+some accounts for reasons X does not document (see below), while the profile is reliable.
 
 **Run Profile first.** It records `user_id` on the node, and X Posts skips the GraphQL call
 entirely when that is already there — so repeat collections never touch the fragile half.
@@ -58,17 +58,21 @@ Uses the **Social Media** type pack (`run.vineyard.typepacks.social`): `social.a
 (`image`/`gif`/…); anything unrecognised lands on `unknown` rather than inventing a member. Attribution of an account
 to a person or organization stays in the Identity type pack (`identity.controls`).
 
-## Some accounts return an empty timeline
+## X Posts is unreliable per account
 
-Measured, and unexplained: for some accounts `UserTweets` answers with a timeline containing no
-entries at all, while the profile call for the same handle succeeds. It is **not** the account
-being private, and not logged-out gating — a logged-out browser shows those same posts. It is not
-account size either: an account with 1.4k followers returns 99 posts here while accounts with 53
-and 114 return none, and every known operation id agrees on each.
+**Some accounts return nothing, and there is no way to tell in advance.** For those, `UserTweets`
+answers with a timeline containing no entries while the profile call for the same handle succeeds.
 
-X does not document the anonymous path at all, so there is no rule to look up. Nothing on the
-account can be changed to fix it, and nothing in this pack can either. The run says so plainly
-rather than blaming the account.
+It is **not** the account being private, and not logged-out gating — a logged-out browser shows
+those same posts. It is not a stale operation id either: all five known ids agree per account.
+
+The closest thing to a pattern, across a sweep of many accounts: it fails more often for smaller
+ones, **roughly under a thousand followers**. That is a tendency, not a threshold — around 1,400
+followers one account returned 99 posts and another returned none. Same band, opposite results.
+
+X does not document this path at all, so there is no rule to look up, and nothing on the account
+or in this pack changes it. Treat X Posts as best-effort: **X Profile is reliable, X Posts is
+not.** The run says so plainly instead of blaming the account.
 
 ## Caveats
 
