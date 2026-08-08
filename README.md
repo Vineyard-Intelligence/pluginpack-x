@@ -33,7 +33,8 @@ constant X serves to every anonymous visitor inside its own JavaScript, not an a
 This pack runs **only in the Vineyard desktop app**. X sends no CORS headers and answers no
 preflight, so a browser cannot reach any of these endpoints — the requests only go through when
 the desktop shell's allowlist contains `https://api.twitter.com` and `https://twitter.com`
-(Settings → advanced origins). In a browser the plugin detects the CORS failure and tells you to
+— the Run plugins dialog offers this as one click when the pack is selected, and the shell
+confirms each origin in its own dialog. In a browser the plugin detects the CORS failure and tells you to
 open the project in the desktop app rather than returning a misleading empty result.
 
 ## How it works
