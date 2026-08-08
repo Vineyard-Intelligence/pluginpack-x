@@ -1,7 +1,7 @@
 # X (Twitter)
 
 A Vineyard **plugin pack** for anonymous X (Twitter) collection. Two plugins, both taking a
-**Social Account** (or **User Account**) node:
+**Social Account** (or **Account**) node:
 
 | Plugin | Cost | Produces |
 | --- | --- | --- |
