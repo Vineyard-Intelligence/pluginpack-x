@@ -19,9 +19,14 @@ entirely when that is already there — so repeat collections never touch the fr
 X Posts takes a `count` param (1–100, default 20).
 
 It uses the same anonymous path as the Fritter/Squawker client family: `guest_token` activation
-against `api.twitter.com/1.1/guest/activate.json`, then the web app's internal endpoints
-(`twitter.com/i/api/graphql/...` for the profile, `/2/timeline/profile/{id}.json` for posts) with
-the `x-guest-token` header. **No API key, no login, no OAuth.**
+against `api.twitter.com/1.1/guest/activate.json`, then the web app's own GraphQL operations
+(`UserByScreenName` for the profile, `UserTweets` for the timeline) with the `x-guest-token`
+header and the web client's public bearer. **No API key, no login, no OAuth** — the bearer is the
+constant X serves to every anonymous visitor inside its own JavaScript, not an account credential.
+
+> **0.4.0** replaced `/2/timeline/profile/{id}.json`, which X deleted (it answers 404 for every
+> id), with the `UserTweets` GraphQL operation, and started sending the bearer, without which the
+> guest endpoint now answers `403 Forbidden`.
 
 ## Desktop only
 
