@@ -58,6 +58,18 @@ Uses the **Social Media** type pack (`run.vineyard.typepacks.social`): `social.a
 (`image`/`gif`/…); anything unrecognised lands on `unknown` rather than inventing a member. Attribution of an account
 to a person or organization stays in the Identity type pack (`identity.controls`).
 
+## Some accounts return an empty timeline
+
+Measured, and unexplained: for some accounts `UserTweets` answers with a timeline containing no
+entries at all, while the profile call for the same handle succeeds. It is **not** the account
+being private, and not logged-out gating — a logged-out browser shows those same posts. It is not
+account size either: an account with 1.4k followers returns 99 posts here while accounts with 53
+and 114 return none, and every known operation id agrees on each.
+
+X does not document the anonymous path at all, so there is no rule to look up. Nothing on the
+account can be changed to fix it, and nothing in this pack can either. The run says so plainly
+rather than blaming the account.
+
 ## Caveats
 
 - X rotates its internal GraphQL operation IDs and gates the guest path whenever it wants —
