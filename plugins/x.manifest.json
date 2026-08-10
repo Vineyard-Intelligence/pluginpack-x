@@ -6,7 +6,7 @@
   "description": "Anonymous X (Twitter) collection over the guest-token path used by the Fritter/Squawker client family — no API key, no login. Two plugins: X Profile (identify an account, two requests, one node) and X Posts (collect its timeline). Desktop only: X sends no CORS headers, so the desktop shell must allowlist api.twitter.com and twitter.com. X Profile is reliable; X Posts returns nothing for some accounts, for reasons X does not document.",
   "author": {
     "name": "VINEYARD",
-    "url": "https://github.com/vineyard-run"
+    "url": "https://github.com/Vineyard-Intelligence"
   },
   "license": "Apache-2.0",
   "icon": "bird",
