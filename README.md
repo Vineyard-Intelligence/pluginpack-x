@@ -8,11 +8,9 @@ A Vineyard **plugin pack** for anonymous X (Twitter) collection. Two plugins, bo
 | **X Profile** | 2 requests | the **Social Account** node, filled in: display name, bio, location, website, follower/following/post counts, verification, join date, avatar |
 | **X Posts** ⚠️ | 1–3 requests per page | one **Post** per tweet, plus **Hashtag** and **Media** nodes and the edges between them (`posted by`, `uses hashtag`, `contains media`, `reposted`, `replies to`). **Returns nothing for some accounts** — see below |
 
-They are separate on purpose. A profile is two requests and one node; a timeline is up to a
-hundred nodes and their edges — asking "does this account exist, and what does the bio say"
-should not stage sixty items to answer it. They also fail independently, and X Posts fails far more
-often: both go through X's internal GraphQL, but the timeline additionally comes back empty for
-some accounts for reasons X does not document (see below), while the profile is reliable.
+They are separate on purpose: a profile is two requests and one node, a timeline is up to a
+hundred nodes and their edges. They also fail independently — the profile is reliable, the
+timeline comes back empty for some accounts (see below).
 
 **Run Profile first.** It records `user_id` on the node, and X Posts skips the GraphQL call
 entirely when that is already there — so repeat collections never touch the fragile half.
@@ -24,31 +22,24 @@ against `api.twitter.com/1.1/guest/activate.json`, then the web app's own GraphQ
 header and the web client's public bearer. **No API key, no login, no OAuth** — the bearer is the
 constant X serves to every anonymous visitor inside its own JavaScript, not an account credential.
 
-> **0.4.0** replaced `/2/timeline/profile/{id}.json`, which X deleted (it answers 404 for every
-> id), with the `UserTweets` GraphQL operation, and started sending the bearer, without which the
-> guest endpoint now answers `403 Forbidden`.
-
 ## Desktop only
 
-This pack runs **only in the Vineyard desktop app**. X sends no CORS headers and answers no
-preflight, so a browser cannot reach any of these endpoints — the requests only go through when
-the desktop shell's allowlist contains `https://api.twitter.com` and `https://twitter.com`
-— the Run plugins dialog offers this as one click when the pack is selected, and the shell
-confirms each origin in its own dialog. In a browser the plugin detects the CORS failure and tells you to
-open the project in the desktop app rather than returning a misleading empty result.
+This pack runs **only in the Vineyard desktop app**. X sends no CORS headers, so a browser cannot
+reach these endpoints. The Run plugins dialog offers to allow `https://api.twitter.com` and
+`https://twitter.com` in one click, and the desktop app confirms each origin. In a browser the
+plugin tells you to open the project in the desktop app rather than returning a misleading empty
+result.
 
 ## How it works
 
 1. **Guest session** — POST `guest/activate.json` to mint a `guest_token`, reused for the whole
-   run. Each plugin mints its own (module state dies with the worker), so running both costs one
-   extra activation — one request against a budget the pacing below already dominates. If X rejects the token mid-run (401/403), the session is re-activated once and the request
-   is retried. Unlike Fritter, no `Authorization: Bearer <web-bearer>` is sent — Vineyard's host
-   bridge strips `authorization`/`cookie` from every plugin request by design.
+   run. Each plugin mints its own, so running both costs one extra activation. If X rejects the
+   token mid-run (401/403), the session is re-activated once and the request is retried.
 2. **Human-paced collection** — every request is preceded by a jittered 0.7–2s pause, every 8th
    request gets a longer 1.5–4s pause, and a 429 answers with `Retry-After` / capped exponential
    backoff. The run stays cancellable at every pause.
-3. **Staging** — every node and edge goes into the capture store, so nothing reaches the server
-   until the analyst reviews and commits the run, under the analyst's own token.
+3. **Staging** — every node and edge is staged, so nothing reaches the server until the analyst
+   reviews and commits the run.
 
 ## Data model
 
@@ -64,15 +55,11 @@ to a person or organization stays in the Identity type pack (`identity.controls`
 answers with a timeline containing no entries while the profile call for the same handle succeeds.
 
 It is **not** the account being private, and not logged-out gating — a logged-out browser shows
-those same posts. It is not a stale operation id either: all five known ids agree per account.
+those same posts. It fails more often for smaller accounts, **roughly under a thousand followers**,
+but that is a tendency, not a threshold.
 
-The closest thing to a pattern, across a sweep of many accounts: it fails more often for smaller
-ones, **roughly under a thousand followers**. That is a tendency, not a threshold — around 1,400
-followers one account returned 99 posts and another returned none. Same band, opposite results.
-
-X does not document this path at all, so there is no rule to look up, and nothing on the account
-or in this pack changes it. Treat X Posts as best-effort: **X Profile is reliable, X Posts is
-not.** The run says so plainly instead of blaming the account.
+Nothing on the account or in this pack changes it. Treat X Posts as best-effort: **X Profile is
+reliable, X Posts is not.** The run says so plainly instead of blaming the account.
 
 ## Caveats
 
