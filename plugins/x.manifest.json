@@ -2,7 +2,7 @@
   "identifier": "run.vineyard.pluginpacks.x",
   "content_type": "vineyard:pluginpack",
   "name": "X (Twitter)",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Collects public X (Twitter) profiles and recent posts for account nodes. Desktop only.",
   "author": {
     "name": "VINEYARD",
@@ -27,7 +27,7 @@
       "identifier": "run.vineyard.plugins.x_profile",
       "content_type": "vineyard:plugin",
       "name": "X Profile",
-      "version": "0.6.1",
+      "version": "0.6.2",
       "description": "Fetches the public X (Twitter) profile for each selected Social Account or Account node's username and writes it to the X Social Account node (created if absent): user_id, display name, bio, location, website, follower/following/post counts, verification, join date, avatar URL. Desktop only.",
       "icon": "bird",
       "platforms": {
@@ -76,14 +76,14 @@
               "GET",
               "POST"
             ],
-            "purpose": "Guest-token activation (the anonymous session every read runs under)."
+            "purpose": "Start a logged-out guest session on X."
           },
           {
             "endpoint": "https://twitter.com",
             "methods": [
               "GET"
             ],
-            "purpose": "X internal GraphQL: UserByScreenName (profile) and UserTweets (timeline)."
+            "purpose": "Read public data of the selected accounts from X."
           }
         ]
       },
@@ -100,7 +100,7 @@
       "identifier": "run.vineyard.plugins.x_posts",
       "content_type": "vineyard:plugin",
       "name": "X Posts",
-      "version": "0.6.1",
+      "version": "0.6.2",
       "description": "Collects recent X (Twitter) posts for each selected Social Account or Account node's username. Creates one Post node per post (text, time, language, engagement counts, permalink, media URLs) plus Hashtag and Media nodes, with \"posted by\", \"uses hashtag\", \"contains media\", \"reposted\" and \"replies to\" edges; if the selected node has no user_id, also creates or fills the X Social Account node the posts attach to. Up to count posts per account (default 20, max 100); some accounts return an empty timeline even though their posts are public. Desktop only.",
       "icon": "bird",
       "platforms": {
@@ -132,6 +132,11 @@
           {
             "typepack": "run.vineyard.typepacks.social",
             "category": "social",
+            "name": "account"
+          },
+          {
+            "typepack": "run.vineyard.typepacks.social",
+            "category": "social",
             "name": "post"
           },
           {
@@ -159,14 +164,14 @@
               "GET",
               "POST"
             ],
-            "purpose": "Guest-token activation (the anonymous session every read runs under)."
+            "purpose": "Start a logged-out guest session on X."
           },
           {
             "endpoint": "https://twitter.com",
             "methods": [
               "GET"
             ],
-            "purpose": "X internal GraphQL: UserByScreenName (profile) and UserTweets (timeline)."
+            "purpose": "Read public data of the selected accounts from X."
           }
         ]
       },
@@ -184,7 +189,7 @@
           "count": {
             "type": "integer",
             "title": "Posts",
-            "description": "How many recent posts to collect (1-100). X ignores this per request, so the plugin pages until it has that many.",
+            "description": "Maximum posts to collect per account, 1–100. Default 20.",
             "minimum": 1,
             "maximum": 100,
             "default": 20
