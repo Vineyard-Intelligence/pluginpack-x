@@ -44,10 +44,10 @@ result.
 ## Data model
 
 Uses the **Social Media** type pack (`run.vineyard.typepacks.social`): `social.account`,
-`social.post`, `social.hashtag`, `social.media`, and their edge types. X's own media vocabulary
+`social.post`, `social.hashtag` and `social.media`. X's own media vocabulary
 (`photo`, `animated_gif`) is mapped onto the pack's closed `media_type` enum
 (`image`/`gif`/…); anything unrecognised lands on `unknown` rather than inventing a member. Attribution of an account
-to a person or organization stays in the Identity type pack (`identity.controls`).
+to a person or organization stays in the Identity type pack.
 
 ## X Posts is unreliable per account
 
