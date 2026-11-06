@@ -68,3 +68,13 @@ reliable, X Posts is not.** The run says so plainly instead of blaming the accou
 - Anonymous collection is a terms-of-service gray area; X can rate-limit or block the IP.
 - A protected (private) account answers with no usable timeline — the run fails gracefully
   rather than fabricating empty posts.
+
+## Building from source
+
+`src/` is the source of `dist/pack.mjs`. The build pins esbuild, so the published bundle can be
+checked against the source:
+
+```bash
+node build.mjs
+git diff --exit-code dist/pack.mjs
+```
