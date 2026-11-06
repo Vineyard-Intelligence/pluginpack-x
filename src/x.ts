@@ -468,7 +468,7 @@ function mediaOf(tweet: Json): Array<{ url: string; kind: string }> {
 
 const MANIFEST_BASE = {
     content_type: 'vineyard:plugin',
-    version: '0.6.2',
+    version: '0.6.3',
     icon: 'bird',
     author: { name: 'VINEYARD', url: 'https://vineyard.run' },
     license: 'Apache-2.0',
@@ -565,7 +565,7 @@ export const xProfile = definePlugin({
         ...MANIFEST_BASE,
         identifier: 'run.vineyard.plugins.x_profile',
         name: 'X Profile',
-        version: '0.6.2',
+        version: '0.6.3',
         description:
             "Fetches the public X (Twitter) profile for each selected Social Account or Account node's username and writes it to the X Social Account node (created if absent): user_id, display name, bio, location, website, follower/following/post counts, verification, join date, avatar URL. Desktop only.",
         io: { consumes: ACCOUNT_IN, produces: [{ typepack: SOCIAL, category: 'social', name: 'account' }] },
@@ -907,7 +907,7 @@ export const xPosts = definePlugin({
         ...MANIFEST_BASE,
         identifier: 'run.vineyard.plugins.x_posts',
         name: 'X Posts',
-        version: '0.6.2',
+        version: '0.6.3',
         description:
             'Collects recent X (Twitter) posts for each selected Social Account or Account node\'s username. Creates one Post node per post (text, time, language, engagement counts, permalink, media URLs) plus Hashtag and Media nodes, with "posted by", "uses hashtag", "contains media", "reposted" and "replies to" edges; if the selected node has no user_id, also creates or fills the X Social Account node the posts attach to. Up to count posts per account (default 20, max 100); some accounts return an empty timeline even though their posts are public. Desktop only.',
         params: {
@@ -1008,7 +1008,7 @@ export default definePluginPack({
     identifier: 'run.vineyard.pluginpacks.x',
     content_type: 'vineyard:pluginpack',
     name: 'X (Twitter)',
-    version: '0.6.2',
+    version: '0.6.3',
     description: 'Collects public X (Twitter) profiles and recent posts for account nodes. Desktop only.',
     plugins: [xProfile, xPosts],
 });
