@@ -7,10 +7,11 @@
 //   1. COST. A profile is two requests and one node. A timeline is one more request and up to a
 //      hundred nodes plus their hashtag/media/thread edges. "Does @foo exist, and what does the
 //      bio say" should not stage sixty items the analyst has to review to find out.
-//   2. FAILURE ISOLATION. The profile goes through X's internal GraphQL, whose operation id is a
-//      hash that X rotates without warning; the timeline is a plain REST-ish endpoint on a
-//      different host path. When one breaks the other usually still works — but fused into one
-//      run(), a rotated GraphQL id took posts down with it.
+//   2. FAILURE ISOLATION. Both calls go through X's internal GraphQL, each under its own operation
+//      id — a hash X rotates without warning, one operation at a time. The timeline was a flat REST
+//      endpoint when this split was made and is GraphQL `UserTweets` now (see fetchTimeline); the
+//      reason stands, since a rotated profile id leaves posts working and the reverse. Fused into
+//      one run(), a rotated id took both down.
 //   3. THE AGENT PICKS BY DESCRIPTION. A single "X (Twitter)" tool gives it no way to say "just
 //      the profile", so it either over-collects or avoids the pack.
 //   4. HONEST io.produces. The old single entry claimed account+post+hashtag+media, so the
